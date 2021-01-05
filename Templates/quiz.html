@@ -1,0 +1,115 @@
+{% extends "index.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block start %}
+{% if question %}
+<div class="text-center" id="questionnumber" data-id="{{id}}">Question Number: {{id}}
+</div>
+<div style="margin-left: 27%" class="card w-50">
+
+
+    <div class="card-header" id="question{{id}}">
+        {{question}}
+    </div>
+    <div class="card-body">
+        <button onclick="checkcorrect(this)" id="0" style="padding: 1%;"
+                value="{{answers.0}}" class="btn btn-outline-primary d-block">a) {{answers.0}}
+        </button>
+        <br>
+        <button onclick="checkcorrect(this)" id="1" style="padding: 1%"
+                value="{{answers.1}}" class="btn btn-outline-primary d-block">b) {{answers.1}}
+        </button>
+        <br>
+        <button onclick="checkcorrect(this)" id="2" style="padding: 1%"
+                value="{{answers.2}}" class="btn btn-outline-primary d-block">c) {{answers.2}}
+        </button>
+        <br>
+        <button onclick="checkcorrect(this)" id="3" style="padding: 1%"
+                value="{{answers.3}}" class="btn btn-outline-primary d-block">c)
+            {{answers.3}}
+        </button>
+    </div>
+</div>
+
+
+{% endif %}
+<br>
+<a style="display: none !important;" href="{% url 'result' %}" id="result" class="btn btn-sm btn-success">View
+    Result</a>
+<div id="correctanswer" style="display: none !important;">
+</div>
+
+<br>
+
+{% block javascript %}
+<script>
+    var score = 0
+
+    function checkcorrect(this1) {
+
+        let answer = this1.value
+        let ele = document.getElementById(this1.id)
+        let question = document.getElementById('questionnumber')
+        let correctans = '{{correct}}'
+        if (question.getAttribute('data-id') !== '1') {
+            correctans = document.getElementById('correctanswer').innerHTML
+        }
+        let buts = document.getElementsByClassName('btn')
+        if (correctans === answer) {
+            ele.className = "btn btn-outline-success d-block"
+            score += 1
+            ele.style.pointerEvents = 'none'
+        } else {
+            ele.className = "btn btn-outline-danger d-block"
+        }
+        for (let i = 0; i < buts.length; i++) {
+            if (buts[i].value !== correctans) {
+                buts[i].style.pointerEvents = 'none'
+                buts[i].className = "btn btn-outline-danger d-block"
+            } else {
+                buts[i].style.pointerEvents = 'none'
+                buts[i].className = "btn btn-outline-success d-block"
+            }
+        }
+        let temp = ['a) ', 'b) ', 'c) ', 'd) ']
+        $(document).ready(function () {
+            $.ajax({
+                url: "/question/",
+                data: {'score': score},
+                success: function (res) {
+                    setTimeout(function () {
+                        if (!res.complete) {
+                            let ele = document.getElementById('question' + res.id)
+                            let btns = document.getElementsByClassName('btn')
+                            let ans = document.getElementById('correctanswer')
+                            ans.innerHTML = res.correct
+                            for (let i = 0; i < btns.length; i++) {
+                                btns[i].innerHTML = temp[i] + res.answers[i]
+                                btns[i].className = "btn btn-outline-primary d-block"
+                                btns[i].value = res.answers[i]
+                                buts[i].style.pointerEvents = 'auto'
+                            }
+                            ele.setAttribute('id', 'question' + (Number(res.id) + 1).toString())
+                            let num = document.getElementById('questionnumber')
+                            num.setAttribute('data-id', (res.id + 1))
+                            num.innerHTML = 'Question Number: ' + (res.id + 1).toString()
+                            ele.innerHTML = res.question
+                        } else {
+                            let elem = document.getElementById('result')
+                            elem.style.display = 'inline'
+                            elem.style.textAlign = 'center'
+                            elem.style.width = '40%'
+                            elem.style.marginLeft = '30%'
+                            elem.innerHTML = "View Result"
+                            elem.style.pointerEvents = 'auto'
+                        }
+                    }, 2000)
+                },
+            })
+        })
+    }
+
+
+</script>
+{% endblock javascript %}
+{% endblock start %}

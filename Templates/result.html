@@ -1,0 +1,23 @@
+{% extends "index.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block javascript %}
+<script>
+    $(document).ready(function () {
+        let elem1 = document.getElementById('timetaken')
+        elem1.innerHTML = "Time taken : " + '{{timetaken}}' + ' seconds'
+    })
+</script>
+{% endblock javascript %}
+{% block start %}
+{% if final %}
+<h1>You scored {{score}} out of 10</h1>
+<h1>Passed!!</h1>
+<a href="{% url 'index' %}" class="btn btn-outline-primary">Start quiz again</a>
+{% else %}
+<h1>You scored {{score}} out of 10</h1>
+<h1>Better luck next time :(</h1>
+<a href="{% url 'index' %}" class="btn btn-outline-primary">Start quiz again</a>
+{% endif %}
+<div id="timetaken"></div>
+{% endblock start %}
