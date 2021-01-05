@@ -59,6 +59,8 @@ def quiz(request):
     if request.method == 'GET':
         t1 = time.time()
         difficulty = request.GET.get('diff')
+        print('***************')
+        print(request.GET.get('category'))
         category = condition.get(request.GET.get('category'), 0)
         request.session['t1'] = t1
         request.session['cat_id'] = category
@@ -68,6 +70,7 @@ def quiz(request):
         data = requests.get(endpoint,
                             params={'amount': 10, 'type': 'multiple', 'difficulty': difficulty,
                                     'category': category}, verify=False).json()
+        print(data)
         answers = data['results'][0]['incorrect_answers'] + [data['results'][0]['correct_answer']]
         random.shuffle(answers)
         request.session['questions'] = data['results'][1:]
